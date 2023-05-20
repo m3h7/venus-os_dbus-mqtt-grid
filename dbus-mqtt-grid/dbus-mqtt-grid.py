@@ -11,6 +11,8 @@ import paho.mqtt.client as mqtt
 import configparser # for config/ini file
 import _thread
 
+from MqttPayloadConvert import MqttPayloadConvert
+
 # import Victron Energy packages
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'ext', 'velib_python'))
 from vedbus import VeDbusService
@@ -54,6 +56,11 @@ if 'DEFAULT' in config and 'timeout' in config['DEFAULT']:
 else:
     timeout = 60
 
+# MQTT payload convert
+if 'MQTT' in config and 'convert_payload' in config['MQTT']:
+    payload_converter = MqttPayloadConvert(config['MQTT']['convert_payload'])
+else:
+    payload_converter = None
 
 # set variables
 connected = 0
@@ -115,7 +122,7 @@ def on_message(client, userdata, msg):
     try:
 
         global \
-            last_changed, \
+            last_changed, payload_converter, \
             grid_power, grid_current, grid_voltage, grid_forward, grid_reverse, \
             grid_L1_power, grid_L1_current, grid_L1_voltage, grid_L1_forward, grid_L1_reverse, \
             grid_L2_power, grid_L2_current, grid_L2_voltage, grid_L2_forward, grid_L2_reverse, \
@@ -124,7 +131,10 @@ def on_message(client, userdata, msg):
         # get JSON from topic
         if msg.topic == config['MQTT']['topic']:
             if msg.payload != '' and msg.payload != b'':
-                jsonpayload = json.loads(msg.payload)
+                if payload_converter:
+                    jsonpayload = payload_converter.convert(json.loads(msg.payload))
+                else:
+                    jsonpayload = json.loads(msg.payload)
 
                 last_changed = int(time.time())
 
