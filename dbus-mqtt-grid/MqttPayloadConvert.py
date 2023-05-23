@@ -3,7 +3,7 @@ class MqttPayloadConvert:
         self._format = format
 
     def convert(self, jsonpayload):
-        payload = { "grid": {} }
+        payload = { "grid": { "L1": { } } }
 
         if self._format == 'obis_0':
             phases = 0
@@ -12,24 +12,32 @@ class MqttPayloadConvert:
                 val_f = float(value)
                 if attr == "1-0:1.8.0_255":
                     payload['grid']['energy_forward'] = val_f
+                    payload['grid']['L1']['energy_forward'] = val_f
                     continue
 
                 if attr == "1-0:2.8.0_255":
                     payload['grid']['energy_reverse'] = val_f
+                    payload['grid']['L1']['energy_reverse'] = val_f
                     continue
                 
                 if attr == "1-0:16.7.0_255":
                     payload['grid']['power'] = val_f
+                    payload['grid']['L1']['power'] = val_f
                     continue
 
                 if attr == '1-0:32.7.0_255' or attr == '1-0:52.7.0_255' or attr == '1-0:72.7.0_255':
                     phases += 1
                     voltage_sum += val_f
                     continue
+
+                if attr == '1-0:14.7.0_255':
+                    payload['grid']['L1']['frequency'] = val_f
             
             if voltage_sum:
                 payload['grid']['voltage'] = voltage_sum / phases
                 payload['grid']['current'] = payload['grid']['power'] / payload['grid']['voltage']
+                payload['grid']['L1']['voltage'] = payload['grid']['voltage']
+                payload['grid']['L1']['current'] =payload['grid']['current']
 
 
         return payload
