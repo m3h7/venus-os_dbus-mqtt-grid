@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.1.3
+* Changed: Fix crash when rounding none value
+* Changed: Fixed a typo
+
+## v0.1.2
+* Added: Frequency
+* Added: Show to which broker and port the connection was made when logging is set to INFO
+* Added: Try to reconnect every 15 seconds to MQTT broker, if connection is closed abnormally
+* Changed: Improved error handling and output
+
 ## v0.1.1
 * Added: Timeout in order to disconnect the grid meter, if no new MQTT message is received after x seconds (configurable in `config.ini`)
 
