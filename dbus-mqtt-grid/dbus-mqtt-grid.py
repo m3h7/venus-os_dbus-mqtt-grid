@@ -331,7 +331,7 @@ def main():
     DBusGMainLoop(set_as_default=True)
 
     # MQTT setup
-    client = mqtt.Client("MqttGrid_" + str(config['MQTT']['device_instance']))
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "MqttGrid_" + str(config['MQTT']['device_instance']))
     client.on_disconnect = on_disconnect
     client.on_connect = on_connect
     client.on_message = on_message
